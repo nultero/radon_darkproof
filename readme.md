@@ -1,6 +1,6 @@
 # Radon Darkproof
 
-[!Theme view](/view.png)
+![Theme view](/view.png)
 
 ## A VS Code theme for insomnia, with a hint of cyberpunk.
 
