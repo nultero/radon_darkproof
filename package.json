@@ -1,0 +1,31 @@
+{
+    "name": "radon",
+    "displayName": "radon",
+    "description": "A high contrast theme.",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.52.0"
+    },
+    "categories": [
+        "Themes"
+    ],
+    "contributes": {
+        "themes": [
+            {
+                "label": "Radon-Andromeda",
+                "uiTheme": "vs-dark",
+                "path": "./themes/Radon-Andromeda.json"
+            },
+            {
+                "label": "Radon-Monokai",
+                "uiTheme": "vs-dark",
+                "path": "./themes/Radon-Monokai.json"
+            },
+            {
+                "label": "Radon-OneDark",
+                "uiTheme": "vs-dark",
+                "path": "./themes/Radon-OneDark.json"
+            }
+        ]
+    }
+}

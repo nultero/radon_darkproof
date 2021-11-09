@@ -4,76 +4,67 @@ from pathlib import Path
 import json
 
 
-class Theme:
+def jload(filePath: str) -> dict:
+        with open(f"{filePath}", "r") as possibleMatch:
+            return json.load(possibleMatch)
 
-    def jload(filePath: str) -> str:
-            with open(f"{filePath}", "r") as possibleMatch:
-                dat = json.load(possibleMatch)
-            return dat
+def jdump(data: dict, filePath: str):
+    with open(filePath, "w+") as f:
+        json.dump(data, f, indent=4)
 
-    def isTheme(filePath: str) -> bool:
+def isTheme(filePath: str) -> bool:
+    try:
+        d = jload(filePath)
+        return "tokenColors" in d.keys()
 
-        dat = Theme.jload(filePath)        
+    except: 
+        IsADirectoryError
 
-        try:
-            dat = Theme.jload(filePath)
-            if "tokenColors" in dat.keys():
-                  return True
-            else: return False
+def splice(filePath: str):
+    d = jload(filePath)
+    radon = jload("Radon_Skeleton.json")
+    radon["tokenColors"] = d["tokenColors"]
 
-        except: IsADirectoryError
+    if confirm("Done. Saving file?"):
+        print("(don't have to put .json on the end)")
+        name = "Radon-" + input("Spliced theme name? :  Radon-")
 
-    def splice(filePath: str):
+        if "json" in name:
+            name = name.replace("json", "")
 
-        dat = Theme.jload(filePath)
-        radon = Theme.jload("Radon_Skeleton.json")
-        radon["tokenColors"] = dat["tokenColors"]
+        jdump(radon, f"themes/{name}.json")
 
-        if confirm("Done. Saving file?"):
-            print("(don't have to put .json on the end)")
-            name = "Radon-" + input("Spliced theme name? :  Radon-")
+        d = jload("package_skeleton.json")
+        
+        d["contributes"]["themes"].append({
+            "label": f"{name}",
+            "uiTheme": "vs-dark",
+            "path": f"./themes/{name}.json"
+        })
 
-            if name.__contains__("json"):
-                name = name.replace("json", "")
-
-            with open(f"themes/{name}.json", "w+") as output:
-                json.dump(radon, output)
-
-            with open("package_skeleton.json", "r") as package:
-                dat = json.load(package)    
-            
-            dat["contributes"]["themes"].append({
-                "label": f"{name}",
-                "uiTheme": "vs-dark",
-                "path": f"./themes/{name}.json"
-            })
-
-            with open("package.json", "w+") as package:
-                json.dump(dat, package)
+        jdump(d, "package.json")
 
 
 def confirm(msg: str):
-    print(msg); inp = input().strip()
-    if inp == "y": return True
-    else: return False
+    print(msg)
+    return input().strip().lower() == "y"
 
 
 def check(filePath: str):
-    if Theme.isTheme(filePath) == True:
+    if isTheme(filePath):
         if confirm(f"Is {filePath} a VSCode theme .json?"):
             if confirm(f"Splice {filePath}'s syntax into a Radon theme?"):
-                Theme.splice(filePath)
+                splice(filePath)
 
 
 def dirTrav(filePath: str):
-
     if not Path.is_dir(Path(filePath)):
         check(filePath)
 
     else:
         for ith_file in Path.iterdir(Path(filePath)):
 
-            if str(ith_file).__contains__(".json"):
+            if ".json" in str(ith_file):
                 check(ith_file)
             
             elif Path.is_dir(ith_file):
@@ -83,12 +74,12 @@ def dirTrav(filePath: str):
 def main():
     if len(argv) > 1:
         ls = []
-        [ls.append(argv[x]) for x in range(1, (len(argv)))]
-        [dirTrav(i) for i in ls]
+        (ls.append(argv[x]) for x in range(1, (len(argv))))
+        (dirTrav(i) for i in ls)
 
     else:
         hm = Path.home()
-        msg = "Is <" + str(hm) + "> your home dir?  (y | n)\n"
+        msg = f"Is <{str(hm)}> your home dir?  (y | n) "
         if confirm(msg):
             msg = "Search in ~/.vscode/extensions/* for themes to splice?"
             if confirm(msg):
@@ -97,4 +88,5 @@ def main():
 
         else: print("closing out, then"); exit(0)
 
-main()
+if __name__ == "__main__":
+    main()
